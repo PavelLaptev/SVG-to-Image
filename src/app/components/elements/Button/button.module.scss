@@ -1,0 +1,73 @@
+@import '../../../styles/tokens';
+@import '../../../styles/figma/styles';
+
+.button {
+    user-select: none;
+    outline: none;
+    border: none;
+    border-radius: $border-radius-6;
+    padding-left: $s-space + $xs-space + $xxs-space;
+    padding-right: $s-space + $xs-space + $xxs-space;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    transition: all $default-transition;
+
+    span {
+        @include text-11-regular;
+        pointer-events: none;
+        line-height: 1;
+    }
+
+    i {
+        transform: translateX($s-space);
+        margin-right: $xs-space;
+    }
+}
+
+.fileButton {
+    input {
+        display: none;
+    }
+}
+
+.primary {
+    background-color: $color-secondary-main;
+    color: $color-white;
+    &:hover {
+        background-color: $color-secondary-dark;
+    }
+
+    svg {
+        fill: $color-white;
+    }
+}
+
+.ghost-dark {
+    background-color: transparent;
+    border: 1px solid $color-black-60;
+    color: $color-black-80;
+    &:hover {
+        border: 1px solid $color-black-80;
+        color: $color-black;
+    }
+
+    svg {
+        fill: $color-black-80;
+    }
+}
+
+.ghost-light {
+    background-color: transparent;
+    border: 1px solid $color-white-80;
+    color: $color-white-80;
+    &:hover {
+        border: 1px solid $color-white;
+        color: $color-white;
+    }
+
+    svg {
+        fill: $color-white-80;
+    }
+}

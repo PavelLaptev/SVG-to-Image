@@ -1,0 +1,7 @@
+{
+    "name": "SVG to Image",
+    "id": "891448180042913164",
+    "api": "1.0.0",
+    "main": "dist/code.js",
+    "ui": "dist/ui.html"
+}

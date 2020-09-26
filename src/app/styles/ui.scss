@@ -1,0 +1,21 @@
+@import './tokens';
+
+*,
+*:before,
+*:after {
+    box-sizing: border-box;
+    text-rendering: optimizeLegibility;
+    // -webkit-font-smoothing: antialiased;
+    // -moz-osx-font-smoothing: grayscale;
+}
+
+*::selection {
+    background-color: lighten($color: $color-primary-dark, $amount: 10);
+}
+
+body {
+    font-family: $font-family, sans-serif;
+    font-size: 12px;
+    text-align: center;
+    margin: 0;
+}
