@@ -1,7 +1,6 @@
 import * as React from 'react';
-// import {decode} from '../utils';
-import '../styles/ui.scss';
-import {Button} from './elements';
+import styles from './app.module.scss';
+import {Button, Icon} from './elements';
 
 function canvasToArrayBuffer(canvas: HTMLCanvasElement): Promise<ArrayBuffer> {
     return new Promise((resolve, reject) =>
@@ -21,10 +20,15 @@ function canvasToArrayBuffer(canvas: HTMLCanvasElement): Promise<ArrayBuffer> {
         })
     );
 }
-const converToImage = svg => {
+
+const converToImage = svgString => {
+    let parser = new DOMParser();
+    let svgDOM = parser.parseFromString(svgString as string, 'image/svg+xml').documentElement;
+
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
-    let svgData = new XMLSerializer().serializeToString(svg);
+
+    let svgData = new XMLSerializer().serializeToString(svgDOM);
 
     let img = new Image();
     img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
@@ -33,12 +37,8 @@ const converToImage = svg => {
         let imgW = img.naturalWidth,
             imgH = img.naturalHeight;
 
-        // var ratio = canvasW / imgW;
         canvas.width = imgW;
         canvas.height = imgH;
-
-        console.log(imgW, imgH);
-        // console.log(img.src);
 
         ctx.drawImage(img, 0, 0, imgW, imgH);
         canvasToArrayBuffer(canvas).then(bytes => {
@@ -49,36 +49,75 @@ const converToImage = svg => {
 };
 
 const App = ({}) => {
+    const [inputVal, setInputVal] = React.useState(2);
+    const [currentMode, setCurrentMode] = React.useState(0);
+
     const handleLoadSVG = e => {
         let fileReader = new FileReader();
         fileReader.readAsText(e.target.files[0]);
-
         fileReader.onload = () => {
             try {
-                let parser = new DOMParser();
-                const DOMSvg = parser.parseFromString(fileReader.result as string, 'image/svg+xml').documentElement;
-
-                // console.log(DOMSvg);
-                converToImage(DOMSvg);
-                // console.log(base64Img);
-                // convertDataURIToBinary(base64Img).then(bytes => {
-                //     console.log(bytes);
-                //     parent.postMessage({pluginMessage: {type: 'img', bytes}}, '*');
-                // });
-                // const bytes = convertDataURIToBinary(base64Img);
-                // parent.postMessage({pluginMessage: {type: 'img', bytes}}, '*');
+                converToImage(fileReader.result);
             } catch (error) {
-                console.error(error, 'Something wrong with the file. Check the structure');
+                console.error(error, 'Something wrong with the file');
             }
         };
         e.target.value = null;
     };
 
+    const handleInput = e => {
+        setInputVal(e.target.value);
+    };
+
+    const ModeSet = () => {
+        const modes = [
+            {
+                name: 'scale',
+                max: 20,
+            },
+            {
+                name: 'width',
+                max: 10000,
+            },
+            {
+                name: 'height',
+                max: 10000,
+            },
+        ];
+
+        return (
+            <section className={styles.sizeMode}>
+                {modes.map((item, i) => {
+                    return (
+                        <button
+                            key={item.name}
+                            className={`${styles.sizeModeButton} ${
+                                currentMode === i ? styles.sizeModeButtonActive : null
+                            }`}
+                        >
+                            <Icon name={modes[i].name} />
+                        </button>
+                    );
+                })}
+            </section>
+        );
+    };
+
     return (
-        <div>
-            Hddd
-            <Button fileType text="hello" onChange={handleLoadSVG} accept="image/svg+xml" />
-        </div>
+        <section className={styles.wrap}>
+            <p className={styles.about}>
+                Select the element you want to fill the SVG, then select the input - from file or clipboard. You can
+                also choose the resolution for the bitmap.
+            </p>
+            <div className={styles.sizeInput}>
+                <ModeSet />
+                <input type="number" value={inputVal} onChange={handleInput} />
+            </div>
+            <section className={styles.buttons}>
+                <Button fileType text="Fill from file" onChange={handleLoadSVG} accept="image/svg+xml" />
+                <Button text="Fill from clipboard" onChange={e => console.log(e)} accept="image/svg+xml" />
+            </section>
+        </section>
     );
 };
 

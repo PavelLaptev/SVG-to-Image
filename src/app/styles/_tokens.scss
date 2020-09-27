@@ -1,20 +1,23 @@
-@import './figma/constants';
+:root {
+    // Colors
+    --c-p-m: #000;
+    --c-p-l: #0f0f0f;
+    --c-p-xl: #aeaeae;
+    --c-p-xxl: #ededed;
 
-// Colors
-$color-primary-main: #ffedf3;
-$color-primary-dark: #f0d1dc;
-$color-secondary-main: #222222;
-$color-secondary-dark: #000000;
+    --c-p-xxxl: #000000;
+    --c-p-xxl: #333333;
+    --c-p-xl: #636363;
+    --c-p-l: #878787;
+    --c-p-m: #bdbdbd;
+    --c-p-s: #e2e2e2;
+    --c-p-xs: #ededed;
+    --c-p-xxs: #f6f6f6;
 
-// Spacers
-$xxs-space: 2px;
-$xs-space: 4px;
-$s-space: 8px;
-$m-space: 16px;
-$l-space: 20px;
-$xl-space: 28px;
-$xxl-space: 36px;
+    // Borders
+    --b-r-s: 4px;
+    --b-r-m: 8px;
 
-// Easing
-$default-transition: 0.1s ease;
-$middle-transition: 0.2s ease;
+    // Transitions
+    --t-m: 0.16s ease;
+}

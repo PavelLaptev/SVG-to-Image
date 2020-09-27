@@ -1,21 +1,17 @@
 @import './tokens';
+@import './font-face';
 
 *,
 *:before,
 *:after {
     box-sizing: border-box;
     text-rendering: optimizeLegibility;
-    // -webkit-font-smoothing: antialiased;
-    // -moz-osx-font-smoothing: grayscale;
-}
-
-*::selection {
-    background-color: lighten($color: $color-primary-dark, $amount: 10);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-    font-family: $font-family, sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 12px;
-    text-align: center;
     margin: 0;
 }

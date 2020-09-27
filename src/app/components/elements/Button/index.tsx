@@ -1,13 +1,10 @@
 import * as React from 'react';
 
-import {Icon} from '../index';
-
 import styles from './button.module.scss';
 
 interface Props {
     text: string;
     className?: any;
-    icon?: string;
     iconColor?: string;
     mod?: string;
     fileType?: boolean;
@@ -17,14 +14,6 @@ interface Props {
 }
 
 const Button: React.SFC<Props> = props => {
-    const isIcon = () => {
-        if (typeof props.icon !== 'undefined') {
-            return true;
-        } else {
-            return false;
-        }
-    };
-
     const btnComponent = () => {
         return (
             <button
@@ -33,7 +22,6 @@ const Button: React.SFC<Props> = props => {
                 onChange={props.onChange}
             >
                 <span>{props.text}</span>
-                {isIcon() ? <Icon name={props.icon} color={props.iconColor} /> : null}
             </button>
         );
     };
@@ -43,7 +31,6 @@ const Button: React.SFC<Props> = props => {
             <label className={`${styles.button} ${styles.fileButton} ${props.className} ${styles[props.mod]}`}>
                 <input type="file" onClick={props.onClick} onChange={props.onChange} accept={props.accept} />
                 <span>{props.text}</span>
-                {typeof props.icon !== 'undefined' ? <Icon name={props.icon} /> : null}
             </label>
         );
     };

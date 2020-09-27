@@ -1,28 +1,21 @@
-@import '../../../styles/tokens';
-@import '../../../styles/figma/styles';
-
 .button {
     user-select: none;
     outline: none;
     border: none;
-    border-radius: $border-radius-6;
-    padding-left: $s-space + $xs-space + $xxs-space;
-    padding-right: $s-space + $xs-space + $xxs-space;
+    border-radius: var(--b-r-s);
+    padding: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
     height: 32px;
-    transition: all $default-transition;
+    transition: Background-color var(--t-m);
 
     span {
-        @include text-11-regular;
+        font-weight: 700;
+        font-size: 13px;
+        text-align: center;
         pointer-events: none;
         line-height: 1;
-    }
-
-    i {
-        transform: translateX($s-space);
-        margin-right: $xs-space;
     }
 }
 
@@ -33,41 +26,9 @@
 }
 
 .primary {
-    background-color: $color-secondary-main;
-    color: $color-white;
+    background-color: var(--c-p-xxl);
+    color: white;
     &:hover {
-        background-color: $color-secondary-dark;
-    }
-
-    svg {
-        fill: $color-white;
-    }
-}
-
-.ghost-dark {
-    background-color: transparent;
-    border: 1px solid $color-black-60;
-    color: $color-black-80;
-    &:hover {
-        border: 1px solid $color-black-80;
-        color: $color-black;
-    }
-
-    svg {
-        fill: $color-black-80;
-    }
-}
-
-.ghost-light {
-    background-color: transparent;
-    border: 1px solid $color-white-80;
-    color: $color-white-80;
-    &:hover {
-        border: 1px solid $color-white;
-        color: $color-white;
-    }
-
-    svg {
-        fill: $color-white-80;
+        background-color: var(--c-p-xxxl);
     }
 }
