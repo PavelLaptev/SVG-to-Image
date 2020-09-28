@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styles from './app.module.scss';
 import {Button, Icon} from './elements';
+import calculateSize from 'calculate-size';
 
 function canvasToArrayBuffer(canvas: HTMLCanvasElement): Promise<ArrayBuffer> {
     return new Promise((resolve, reject) =>
@@ -73,44 +74,84 @@ const App = ({}) => {
         const modes = [
             {
                 name: 'scale',
+                default: 2,
                 max: 20,
             },
             {
                 name: 'width',
                 max: 10000,
+                default: 2000,
             },
             {
                 name: 'height',
+                default: 2000,
                 max: 10000,
             },
         ];
+
+        const isActive = (mode, i, className) => {
+            if (mode === i) {
+                return className;
+            } else {
+                return null;
+            }
+        };
+
+        const handleBtnClick = (i, item) => {
+            setCurrentMode(i);
+            setInputVal(item.default);
+        };
 
         return (
             <section className={styles.sizeMode}>
                 {modes.map((item, i) => {
                     return (
-                        <button
+                        <div
                             key={item.name}
-                            className={`${styles.sizeModeButton} ${
-                                currentMode === i ? styles.sizeModeButtonActive : null
-                            }`}
+                            className={`${styles.sizeModeItem} ${isActive(currentMode, i, styles.sizeModeItemActive)}`}
                         >
-                            <Icon name={modes[i].name} />
-                        </button>
+                            <div
+                                className={`${styles.sizeModeLabel} ${isActive(
+                                    currentMode,
+                                    i,
+                                    styles.sizeModeLabelActive
+                                )}`}
+                            >
+                                {item.name}
+                            </div>
+                            <button className={styles.sizeModeButton} onClick={() => handleBtnClick(i, item)}>
+                                <Icon name={modes[i].name} />
+                            </button>
+                        </div>
                     );
                 })}
             </section>
         );
     };
 
+    const getSize = string => {
+        return calculateSize(string, {
+            font: 'Arial',
+            fontSize: '16px',
+            fontWeight: 'bold',
+        });
+    };
+
     return (
         <section className={styles.wrap}>
             <p className={styles.about}>
-                Select the element you want to fill the SVG, then select the input - from file or clipboard. You can
-                also choose the resolution for the bitmap.
+                Select the element you want to fill, then select the input — from file or clipboard. Change the
+                resolution by scale — max 10, by width or height — max 10.000px.
             </p>
             <div className={styles.sizeInput}>
                 <ModeSet />
+                <span
+                    id={'measureUnitSpan'}
+                    style={{left: `${getSize(`${inputVal}px`).width}px`}}
+                    className={styles.measureUnitSpan}
+                >
+                    px
+                </span>
                 <input type="number" value={inputVal} onChange={handleInput} />
             </div>
             <section className={styles.buttons}>

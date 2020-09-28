@@ -3,10 +3,14 @@
 interface CssExports {
   'about': string;
   'buttons': string;
+  'measureUnitSpan': string;
   'sizeInput': string;
   'sizeMode': string;
   'sizeModeButton': string;
-  'sizeModeButtonActive': string;
+  'sizeModeItem': string;
+  'sizeModeItemActive': string;
+  'sizeModeLabel': string;
+  'sizeModeLabelActive': string;
   'wrap': string;
 }
 export const cssExports: CssExports;

@@ -6,7 +6,7 @@
     text-align: left;
     font-size: 11px;
     margin: 0;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
     color: var(--c-p-xl);
 }
 
@@ -31,8 +31,9 @@
         height: 54px;
         border-radius: var(--b-r-s);
         background-color: var(--c-p-xs);
-        font-size: 14px;
-        font-weight: 700;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 16px;
+        font-weight: bold;
         border: none;
         outline: none;
         transition: background-color var(--t-m);
@@ -47,27 +48,64 @@
     }
 }
 
+.measureUnitSpan {
+    pointer-events: none;
+    position: absolute;
+    z-index: 1;
+    bottom: 16px;
+    font-size: 14px;
+    font-weight: 700;
+    opacity: 0.4;
+}
+
 .sizeMode {
+    display: flex;
     z-index: 1;
     position: absolute;
     right: 12px;
     bottom: 12px;
 }
 
+.sizeModeItem {
+    position: relative;
+    margin-left: 4px;
+    &Active {
+        .sizeModeButton {
+            pointer-events: none;
+            background-color: var(--c-p-xxl);
+            svg {
+                fill: white;
+            }
+        }
+    }
+}
+
+.sizeModeLabel {
+    pointer-events: none;
+    opacity: 0;
+    position: absolute;
+    top: -26px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 2px 4px;
+    border-radius: var(--b-r-s);
+    color: white;
+    background-color: var(--c-p-xxl);
+    text-transform: capitalize;
+    font-size: 11px;
+    font-weight: 700;
+    &Active {
+        opacity: 1;
+    }
+}
+
 .sizeModeButton {
     padding: 4px;
-    margin-left: 4px;
     background-color: transparent;
     border: none;
     border-radius: var(--b-r-m);
     transition: background-color var(--t-m);
     &:hover {
         background-color: white;
-    }
-    &Active {
-        background-color: var(--c-p-xxl);
-        svg {
-            fill: white;
-        }
     }
 }
