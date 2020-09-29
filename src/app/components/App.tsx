@@ -70,25 +70,36 @@ const App = ({}) => {
         setInputVal(e.target.value);
     };
 
-    const ModeSet = () => {
-        const modes = [
-            {
-                name: 'scale',
-                default: 2,
-                max: 20,
-            },
-            {
-                name: 'width',
-                max: 10000,
-                default: 2000,
-            },
-            {
-                name: 'height',
-                default: 2000,
-                max: 10000,
-            },
-        ];
+    const modes = [
+        {
+            name: 'scale',
+            units: '@x',
+            default: 2,
+            max: 20,
+        },
+        {
+            name: 'width',
+            units: 'px',
+            max: 10000,
+            default: 2000,
+        },
+        {
+            name: 'height',
+            units: 'px',
+            default: 2000,
+            max: 10000,
+        },
+    ];
 
+    const getSize = string => {
+        return calculateSize(string, {
+            font: 'Arial',
+            fontSize: '16px',
+            fontWeight: 'bold',
+        });
+    };
+
+    const ModeSet = () => {
         const isActive = (mode, i, className) => {
             if (mode === i) {
                 return className;
@@ -129,14 +140,6 @@ const App = ({}) => {
         );
     };
 
-    const getSize = string => {
-        return calculateSize(string, {
-            font: 'Arial',
-            fontSize: '16px',
-            fontWeight: 'bold',
-        });
-    };
-
     return (
         <section className={styles.wrap}>
             <p className={styles.about}>
@@ -147,16 +150,16 @@ const App = ({}) => {
                 <ModeSet />
                 <span
                     id={'measureUnitSpan'}
-                    style={{left: `${getSize(`${inputVal}px`).width}px`}}
+                    style={{left: `${getSize(`${inputVal}xx`).width}px`}}
                     className={styles.measureUnitSpan}
                 >
-                    px
+                    {modes[currentMode].units}
                 </span>
                 <input type="number" value={inputVal} onChange={handleInput} />
             </div>
             <section className={styles.buttons}>
-                <Button fileType text="Fill from file" onChange={handleLoadSVG} accept="image/svg+xml" />
-                <Button text="Fill from clipboard" onChange={e => console.log(e)} accept="image/svg+xml" />
+                <Button fileType text="SVG from file" onChange={handleLoadSVG} accept="image/svg+xml" />
+                <Button text="SVG from clipboard" onChange={e => console.log(e)} accept="image/svg+xml" />
             </section>
         </section>
     );

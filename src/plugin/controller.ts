@@ -1,5 +1,5 @@
 // Show UI
-figma.showUI(__html__, {width: 240, height: 300});
+figma.showUI(__html__, {width: 240, height: 268});
 
 figma.ui.onmessage = msg => {
     if (msg.type === 'img') {
@@ -19,7 +19,7 @@ figma.ui.onmessage = msg => {
 
             target['fills'] = [...currentFills, ...[newFill]];
         } else {
-            figma.notify('📌 Select something…', {
+            figma.notify('📌 Select something to fill…', {
                 timeout: 2000,
             });
         }
