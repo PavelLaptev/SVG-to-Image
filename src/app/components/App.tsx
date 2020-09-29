@@ -3,6 +3,11 @@ import styles from './app.module.scss';
 import {Button, Icon} from './elements';
 import calculateSize from 'calculate-size';
 
+function calculateAspectRatioFit(srcWidth, srcHeight, maxSize) {
+    var ratio = Math.min(maxSize / srcWidth, maxSize / srcHeight);
+    return {width: srcWidth * ratio, height: srcHeight * ratio};
+}
+
 function canvasToArrayBuffer(canvas: HTMLCanvasElement): Promise<ArrayBuffer> {
     return new Promise((resolve, reject) =>
         canvas.toBlob(async d => {
@@ -22,7 +27,17 @@ function canvasToArrayBuffer(canvas: HTMLCanvasElement): Promise<ArrayBuffer> {
     );
 }
 
-const converToImage = svgString => {
+const converToImage = (svgString, modes, currentMode, val) => {
+    const checkScaleMode = (size, dimension) => {
+        if (modes[currentMode].name === modes[0].name) {
+            console.log(size[dimension] * val);
+            return size[dimension] * val;
+        } else {
+            // console.log(size * val);
+            return calculateAspectRatioFit(size.width, size.height, val)[dimension];
+        }
+    };
+
     let parser = new DOMParser();
     let svgDOM = parser.parseFromString(svgString as string, 'image/svg+xml').documentElement;
 
@@ -35,8 +50,13 @@ const converToImage = svgString => {
     img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
 
     img.onload = function() {
-        let imgW = img.naturalWidth,
-            imgH = img.naturalHeight;
+        let imgSize = {
+            width: img.naturalWidth,
+            height: img.naturalHeight,
+        };
+
+        let imgW = checkScaleMode(imgSize, 'width'),
+            imgH = checkScaleMode(imgSize, 'height');
 
         canvas.width = imgW;
         canvas.height = imgH;
@@ -53,41 +73,30 @@ const App = ({}) => {
     const [inputVal, setInputVal] = React.useState(2);
     const [currentMode, setCurrentMode] = React.useState(0);
 
-    const handleLoadSVG = e => {
-        let fileReader = new FileReader();
-        fileReader.readAsText(e.target.files[0]);
-        fileReader.onload = () => {
-            try {
-                converToImage(fileReader.result);
-            } catch (error) {
-                console.error(error, 'Something wrong with the file');
-            }
-        };
-        e.target.value = null;
-    };
-
-    const handleInput = e => {
-        setInputVal(e.target.value);
-    };
-
-    const modes = [
+    const scaleModes = [
         {
             name: 'scale',
             units: '@x',
             default: 2,
-            max: 20,
+            min: 0,
+            max: 16,
+            length: 4,
         },
         {
             name: 'width',
             units: 'px',
-            max: 10000,
             default: 2000,
+            min: 0,
+            max: 10000,
+            length: 5,
         },
         {
             name: 'height',
             units: 'px',
             default: 2000,
+            min: 0,
             max: 10000,
+            length: 5,
         },
     ];
 
@@ -115,7 +124,7 @@ const App = ({}) => {
 
         return (
             <section className={styles.sizeMode}>
-                {modes.map((item, i) => {
+                {scaleModes.map((item, i) => {
                     return (
                         <div
                             key={item.name}
@@ -131,13 +140,63 @@ const App = ({}) => {
                                 {item.name}
                             </div>
                             <button className={styles.sizeModeButton} onClick={() => handleBtnClick(i, item)}>
-                                <Icon name={modes[i].name} />
+                                <Icon name={scaleModes[i].name} />
                             </button>
                         </div>
                     );
                 })}
             </section>
         );
+    };
+
+    const handleInput = e => {
+        const re = /^[0-9.\b]+$/; //rules
+        if (e.target.value === '' || re.test(e.target.value)) {
+            if (e.target.value > scaleModes[currentMode].max) {
+                setInputVal(scaleModes[currentMode].max);
+            } else if (e.target.value < scaleModes[currentMode].min) {
+                setInputVal(scaleModes[currentMode].min);
+            } else {
+                setInputVal(e.target.value);
+            }
+        }
+    };
+
+    const handleLoadSVG = e => {
+        let fileReader = new FileReader();
+        fileReader.readAsText(e.target.files[0]);
+        fileReader.onload = () => {
+            try {
+                converToImage(fileReader.result, scaleModes, currentMode, inputVal);
+            } catch (error) {
+                console.error(error, 'Something wrong with the file');
+            }
+        };
+        e.target.value = null;
+    };
+
+    const handleClipboardSVG = () => {
+        const textField = document.createElement('textarea');
+        textField.style.opacity = '0';
+        document.body.appendChild(textField);
+        textField.focus();
+        document.execCommand('paste');
+        console.log(textField.value);
+        textField.remove();
+
+        // var pasteText = document.querySelector("#output");
+        // pasteText.focus();
+        // document.execCommand("paste");
+        // console.log(pasteText.textContent);
+        // let fileReader = new FileReader();
+        // fileReader.readAsText(e.target.files[0]);
+        // fileReader.onload = () => {
+        //     try {
+        //         converToImage(fileReader.result, scaleModes, currentMode, inputVal);
+        //     } catch (error) {
+        //         console.error(error, 'Something wrong with the file');
+        //     }
+        // };
     };
 
     return (
@@ -153,13 +212,19 @@ const App = ({}) => {
                     style={{left: `${getSize(`${inputVal}xx`).width}px`}}
                     className={styles.measureUnitSpan}
                 >
-                    {modes[currentMode].units}
+                    {scaleModes[currentMode].units}
                 </span>
-                <input type="number" value={inputVal} onChange={handleInput} />
+                <input
+                    value={inputVal}
+                    onChange={handleInput}
+                    maxLength={scaleModes[currentMode].length}
+                    // max={scaleModes[currentMode].max}
+                    // min={scaleModes[currentMode].min}
+                />
             </div>
             <section className={styles.buttons}>
                 <Button fileType text="SVG from file" onChange={handleLoadSVG} accept="image/svg+xml" />
-                <Button text="SVG from clipboard" onChange={e => console.log(e)} accept="image/svg+xml" />
+                <Button text="SVG from clipboard" onClick={handleClipboardSVG} accept="image/svg+xml" />
             </section>
         </section>
     );
