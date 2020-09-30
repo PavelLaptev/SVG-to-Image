@@ -30,7 +30,7 @@ function canvasToArrayBuffer(canvas: HTMLCanvasElement): Promise<ArrayBuffer> {
 const converToImage = (svgString, modes, currentMode, val) => {
     const checkScaleMode = (size, dimension) => {
         if (modes[currentMode].name === modes[0].name) {
-            console.log(size[dimension] * val);
+            // console.log(size[dimension] * val);
             return size[dimension] * val;
         } else {
             // console.log(size * val);
@@ -162,41 +162,45 @@ const App = ({}) => {
         }
     };
 
-    const handleLoadSVG = e => {
-        let fileReader = new FileReader();
-        fileReader.readAsText(e.target.files[0]);
-        fileReader.onload = () => {
+    const copyfromClipBoard = async () => {
+        return new Promise((resolve, reject) => {
             try {
-                converToImage(fileReader.result, scaleModes, currentMode, inputVal);
-            } catch (error) {
-                console.error(error, 'Something wrong with the file');
+                const textField = document.createElement('input');
+                document.body.appendChild(textField);
+                textField.select();
+                document.execCommand('paste');
+                resolve(textField.value);
+                textField.remove();
+            } catch (e) {
+                reject(new Error(e));
             }
-        };
-        e.target.value = null;
+        });
     };
 
-    const handleClipboardSVG = () => {
-        const textField = document.createElement('textarea');
-        textField.style.opacity = '0';
-        document.body.appendChild(textField);
-        textField.focus();
-        document.execCommand('paste');
-        console.log(textField.value);
-        textField.remove();
+    const handleClipboardSVG = (target, type) => {
+        parent.postMessage({pluginMessage: {type: 'clicked'}}, '*');
 
-        // var pasteText = document.querySelector("#output");
-        // pasteText.focus();
-        // document.execCommand("paste");
-        // console.log(pasteText.textContent);
-        // let fileReader = new FileReader();
-        // fileReader.readAsText(e.target.files[0]);
-        // fileReader.onload = () => {
-        //     try {
-        //         converToImage(fileReader.result, scaleModes, currentMode, inputVal);
-        //     } catch (error) {
-        //         console.error(error, 'Something wrong with the file');
-        //     }
-        // };
+        onmessage = event => {
+            if (event.data.pluginMessage.selected) {
+                if (type === 'fromFile') {
+                    let fileReader = new FileReader();
+                    fileReader.readAsText(target.files[0]);
+                    fileReader.onload = () => {
+                        try {
+                            converToImage(fileReader.result, scaleModes, currentMode, inputVal);
+                        } catch (error) {
+                            console.error(error, 'Something wrong with the file');
+                        }
+                    };
+                    target.value = null;
+                }
+                if (type === 'fromClipboard') {
+                    copyfromClipBoard().then(result => converToImage(result, scaleModes, currentMode, inputVal));
+                }
+            } else {
+                parent.postMessage({pluginMessage: {type: 'nullSelection'}}, '*');
+            }
+        };
     };
 
     return (
@@ -214,17 +218,20 @@ const App = ({}) => {
                 >
                     {scaleModes[currentMode].units}
                 </span>
-                <input
-                    value={inputVal}
-                    onChange={handleInput}
-                    maxLength={scaleModes[currentMode].length}
-                    // max={scaleModes[currentMode].max}
-                    // min={scaleModes[currentMode].min}
-                />
+                <input value={inputVal} onChange={handleInput} maxLength={scaleModes[currentMode].length} />
             </div>
             <section className={styles.buttons}>
-                <Button fileType text="SVG from file" onChange={handleLoadSVG} accept="image/svg+xml" />
-                <Button text="SVG from clipboard" onClick={handleClipboardSVG} accept="image/svg+xml" />
+                <Button
+                    fileType
+                    text="SVG from file"
+                    onChange={e => handleClipboardSVG(e.target, 'fromFile')}
+                    accept="image/svg+xml"
+                />
+                <Button
+                    text="SVG from clipboard"
+                    onClick={e => handleClipboardSVG(e, 'fromClipboard')}
+                    accept="image/svg+xml"
+                />
             </section>
         </section>
     );
