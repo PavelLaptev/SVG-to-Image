@@ -1,5 +1,4 @@
 import * as React from 'react';
-
 import styles from './button.module.scss';
 
 interface Props {
@@ -9,6 +8,7 @@ interface Props {
     mod?: string;
     fileType?: boolean;
     accept?: string;
+    version?: boolean;
     onClick?(event: React.MouseEvent<HTMLButtonElement>): void;
     onChange?(event: React.FormEvent<HTMLInputElement>): void;
 }
@@ -22,6 +22,7 @@ const Button: React.SFC<Props> = props => {
                 onChange={props.onChange}
             >
                 <span>{props.text}</span>
+                {props.version ? <span className={styles.version}>β</span> : null}
             </button>
         );
     };
@@ -43,6 +44,7 @@ Button.defaultProps = {
     mod: 'primary',
     fileType: false,
     accept: null,
+    version: false,
 } as Partial<Props>;
 
 export default Button;

@@ -4,6 +4,7 @@ interface CssExports {
   'button': string;
   'fileButton': string;
   'primary': string;
+  'version': string;
 }
 export const cssExports: CssExports;
 export default cssExports;

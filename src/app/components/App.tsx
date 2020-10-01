@@ -2,13 +2,38 @@ import * as React from 'react';
 import styles from './app.module.scss';
 import {Button, Icon} from './elements';
 import calculateSize from 'calculate-size';
+import {calculateAspectRatioFit, copyfromClipBoard} from './../../utils';
 
-function calculateAspectRatioFit(srcWidth, srcHeight, maxSize) {
-    var ratio = Math.min(maxSize / srcWidth, maxSize / srcHeight);
-    return {width: srcWidth * ratio, height: srcHeight * ratio};
-}
+// Modes obj for each type of scaling
+const scaleModes = [
+    {
+        name: 'scale',
+        units: '@x',
+        default: 2,
+        min: 0,
+        max: 16,
+        length: 4,
+    },
+    {
+        name: 'width',
+        units: 'px',
+        default: 2000,
+        min: 0,
+        max: 10000,
+        length: 5,
+    },
+    {
+        name: 'height',
+        units: 'px',
+        default: 2000,
+        min: 0,
+        max: 10000,
+        length: 5,
+    },
+];
 
-function canvasToArrayBuffer(canvas: HTMLCanvasElement): Promise<ArrayBuffer> {
+// Convert Image to the ArrayBuffer type
+const imageToArrayBuffer = (canvas: HTMLCanvasElement): Promise<ArrayBuffer> => {
     return new Promise((resolve, reject) =>
         canvas.toBlob(async d => {
             if (d) {
@@ -25,19 +50,20 @@ function canvasToArrayBuffer(canvas: HTMLCanvasElement): Promise<ArrayBuffer> {
             }
         })
     );
-}
+};
 
-const converToImage = (svgString, modes, currentMode, val) => {
+// prepare SVG string for Figma Image
+const prepareSVGforFigma = (svgString, modes, currentMode, val) => {
+    // Check which scake mode is selected
     const checkScaleMode = (size, dimension) => {
         if (modes[currentMode].name === modes[0].name) {
-            // console.log(size[dimension] * val);
             return size[dimension] * val;
         } else {
-            // console.log(size * val);
             return calculateAspectRatioFit(size.width, size.height, val)[dimension];
         }
     };
 
+    // Paste SVG string to a Canvas
     let parser = new DOMParser();
     let svgDOM = parser.parseFromString(svgString as string, 'image/svg+xml').documentElement;
 
@@ -62,8 +88,7 @@ const converToImage = (svgString, modes, currentMode, val) => {
         canvas.height = imgH;
 
         ctx.drawImage(img, 0, 0, imgW, imgH);
-        canvasToArrayBuffer(canvas).then(bytes => {
-            // console.log(bytes);
+        imageToArrayBuffer(canvas).then(bytes => {
             parent.postMessage({pluginMessage: {type: 'img', bytes}}, '*');
         });
     };
@@ -73,42 +98,9 @@ const App = ({}) => {
     const [inputVal, setInputVal] = React.useState(2);
     const [currentMode, setCurrentMode] = React.useState(0);
 
-    const scaleModes = [
-        {
-            name: 'scale',
-            units: '@x',
-            default: 2,
-            min: 0,
-            max: 16,
-            length: 4,
-        },
-        {
-            name: 'width',
-            units: 'px',
-            default: 2000,
-            min: 0,
-            max: 10000,
-            length: 5,
-        },
-        {
-            name: 'height',
-            units: 'px',
-            default: 2000,
-            min: 0,
-            max: 10000,
-            length: 5,
-        },
-    ];
-
-    const getSize = string => {
-        return calculateSize(string, {
-            font: 'Arial',
-            fontSize: '16px',
-            fontWeight: 'bold',
-        });
-    };
-
+    // Generate MODE buttons
     const ModeSet = () => {
+        // Class checking for the current mode
         const isActive = (mode, i, className) => {
             if (mode === i) {
                 return className;
@@ -117,6 +109,7 @@ const App = ({}) => {
             }
         };
 
+        // Set new value and current mode
         const handleBtnClick = (i, item) => {
             setCurrentMode(i);
             setInputVal(item.default);
@@ -149,6 +142,7 @@ const App = ({}) => {
         );
     };
 
+    // Handle input value
     const handleInput = e => {
         const re = /^[0-9.\b]+$/; //rules
         if (e.target.value === '' || re.test(e.target.value)) {
@@ -162,22 +156,8 @@ const App = ({}) => {
         }
     };
 
-    const copyfromClipBoard = async () => {
-        return new Promise((resolve, reject) => {
-            try {
-                const textField = document.createElement('input');
-                document.body.appendChild(textField);
-                textField.select();
-                document.execCommand('paste');
-                resolve(textField.value);
-                textField.remove();
-            } catch (e) {
-                reject(new Error(e));
-            }
-        });
-    };
-
-    const handleClipboardSVG = (target, type) => {
+    // Initial function that start the convertation process
+    const handleSVGtoFigmaPaste = (target, type) => {
         parent.postMessage({pluginMessage: {type: 'clicked'}}, '*');
 
         onmessage = event => {
@@ -187,7 +167,7 @@ const App = ({}) => {
                     fileReader.readAsText(target.files[0]);
                     fileReader.onload = () => {
                         try {
-                            converToImage(fileReader.result, scaleModes, currentMode, inputVal);
+                            prepareSVGforFigma(fileReader.result, scaleModes, currentMode, inputVal);
                         } catch (error) {
                             console.error(error, 'Something wrong with the file');
                         }
@@ -195,10 +175,8 @@ const App = ({}) => {
                     target.value = null;
                 }
                 if (type === 'fromClipboard') {
-                    copyfromClipBoard().then(result => converToImage(result, scaleModes, currentMode, inputVal));
+                    copyfromClipBoard().then(result => prepareSVGforFigma(result, scaleModes, currentMode, inputVal));
                 }
-            } else {
-                parent.postMessage({pluginMessage: {type: 'nullSelection'}}, '*');
             }
         };
     };
@@ -213,7 +191,15 @@ const App = ({}) => {
                 <ModeSet />
                 <span
                     id={'measureUnitSpan'}
-                    style={{left: `${getSize(`${inputVal}xx`).width}px`}}
+                    style={{
+                        left: `${
+                            calculateSize(`${inputVal}xx`, {
+                                font: 'Arial',
+                                fontSize: '16px',
+                                fontWeight: 'bold',
+                            }).width
+                        }px`,
+                    }}
                     className={styles.measureUnitSpan}
                 >
                     {scaleModes[currentMode].units}
@@ -224,13 +210,14 @@ const App = ({}) => {
                 <Button
                     fileType
                     text="SVG from file"
-                    onChange={e => handleClipboardSVG(e.target, 'fromFile')}
+                    onChange={e => handleSVGtoFigmaPaste(e.target, 'fromFile')}
                     accept="image/svg+xml"
                 />
                 <Button
                     text="SVG from clipboard"
-                    onClick={e => handleClipboardSVG(e, 'fromClipboard')}
+                    onClick={e => handleSVGtoFigmaPaste(e, 'fromClipboard')}
                     accept="image/svg+xml"
+                    version
                 />
             </section>
         </section>

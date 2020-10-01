@@ -17,6 +17,12 @@
         pointer-events: none;
         line-height: 1;
     }
+
+    .version {
+        transform: translate(4px, -2px);
+        font-size: 10px;
+        color: #76d8b0;
+    }
 }
 
 .fileButton {
