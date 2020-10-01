@@ -184,8 +184,8 @@ const App = ({}) => {
     return (
         <section className={styles.wrap}>
             <p className={styles.about}>
-                Select the element you want to fill, then select the input — from file or clipboard. Change the
-                resolution by scale — max 10, by width or height — max 10.000px.
+                Select what you want to fill, then select the input — file or clipboard. Change the resolution by scale
+                — max 16, by width or height — max 10.000px.
             </p>
             <div className={styles.sizeInput}>
                 <ModeSet />

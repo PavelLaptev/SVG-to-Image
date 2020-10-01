@@ -1,5 +1,5 @@
 // Show UI
-figma.showUI(__html__, {width: 240, height: 268});
+figma.showUI(__html__, {width: 240, height: 254});
 
 figma.ui.onmessage = msg => {
     // If clicked msg and something selected we send message back to the UI to execute parse function
