@@ -15,7 +15,7 @@ You can also scale your image when you import it, as you usually do when you exp
 
 [Install Plugin](https://www.figma.com/community/plugin/891448180042913164)
 
-Check the deom on [Youtube](https://youtu.be/8jlZCFvIhdo)
+Check the demo on [Youtube](https://youtu.be/8jlZCFvIhdo)
 
 Enjoy!
 
