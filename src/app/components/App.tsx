@@ -184,7 +184,6 @@ const App = ({}) => {
     // Reset input value on button click
     const handleFileValueReset = target => {
         target.value = '';
-        console.log(target.value);
     };
 
     return (
