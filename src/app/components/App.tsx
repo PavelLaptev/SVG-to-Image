@@ -94,6 +94,7 @@ const prepareSVGforFigma = (svgString, modes, currentMode, val) => {
     };
 };
 
+// Application
 const App = ({}) => {
     const [inputVal, setInputVal] = React.useState(2);
     const [currentMode, setCurrentMode] = React.useState(0);
@@ -172,13 +173,18 @@ const App = ({}) => {
                             console.error(error, 'Something wrong with the file');
                         }
                     };
-                    target.value = null;
                 }
                 if (type === 'fromClipboard') {
                     copyfromClipBoard().then(result => prepareSVGforFigma(result, scaleModes, currentMode, inputVal));
                 }
             }
         };
+    };
+
+    // Reset input value on button click
+    const handleFileValueReset = target => {
+        target.value = '';
+        console.log(target.value);
     };
 
     return (
@@ -211,6 +217,7 @@ const App = ({}) => {
                     fileType
                     text="SVG from file"
                     onChange={e => handleSVGtoFigmaPaste(e.target, 'fromFile')}
+                    onClick={e => handleFileValueReset(e.target)}
                     accept="image/svg+xml"
                 />
                 <Button
